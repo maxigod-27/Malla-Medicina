@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Malla Curricular Medicina - Fundación Barceló</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    h2 {
+      margin-top: 2rem;
+      color: #005f73;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .materia {
+      background: #e0fbfc;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s ease;
+    }
+    .materia.aprobada {
+      background: #98c1d9;
+      text-decoration: line-through;
+    }
+    .materia.bloqueada {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .materia:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #333;
+      color: #fff;
+      padding: 0.5rem;
+      font-size: 0.8rem;
+      border-radius: 5px;
+      white-space: pre-line;
+      display: block;
+      z-index: 100;
+    }
+    hr {
+      border: none;
+      border-top: 2px solid #ccc;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular - Medicina (Fundación Barceló)</h1>
+  <div id="malla"></div>
+
+  <script>
+    const materias = [
+      {
+        ciclo: 'PRIMER AÑO - Ciclo Introductorio',
+        items: [
+          { id: 'bbav', nombre: 'Bases Biológicas y Antropológicas de la Vida' },
+          { id: 'iem', nombre: 'Introducción al Estudio de la Medicina' },
+        ]
+      },
+      {
+        ciclo: 'SEGUNDO AÑO - Ciclo Biomédico',
+        items: [
+          { id: 'anatomia', nombre: 'Anatomía Normal' },
+          { id: 'histologia', nombre: 'Histología y Embriología. Genética Humana' },
+          { id: 'bioqcel', nombre: 'Bioquímica Celular' },
+          { id: 'aps1', nombre: 'Atención Primaria de la Salud' },
+          { id: 'info1', nombre: 'Informática Médica I' },
+          { id: 'ingles1', nombre: 'Inglés Médico I' },
+          { id: 'opt1', nombre: 'Asignatura Electiva u Optativa I' },
+          { id: 'opt2', nombre: 'Asignatura Electiva u Optativa II' },
+        ]
+      },
+      {
+        ciclo: 'TERCER AÑO - Ciclo Biomédico',
+        items: [
+          { id: 'fisiologia', nombre: 'Fisiología', req: ['anatomia', 'bioqcel'] },
+          { id: 'bioqinm', nombre: 'Bioquímica-Inmunología. Nutrición Normal', req: ['bioqcel'] },
+          { id: 'sm1', nombre: 'Salud Mental I' },
+          { id: 'info2', nombre: 'Informática Médica II', req: ['info1'] },
+          { id: 'ingles2', nombre: 'Inglés Médico II', req: ['ingles1'] },
+          { id: 'opt3', nombre: 'Asignatura Electiva u Optativa III' },
+          { id: 'opt4', nombre: 'Asignatura Electiva u Optativa IV' },
+        ]
+      },
+      {
+        ciclo: 'CUARTO AÑO - Ciclo Biomédico',
+        items: [
+          { id: 'patologia', nombre: 'Patología General. Fisiopatología. Patología Especial', req: ['fisiologia'] },
+          { id: 'microbio', nombre: 'Microbiología', req: ['bioqinm'] },
+          { id: 'semiologia', nombre: 'Semiología General', req: ['anatomia'] },
+          { id: 'farmaco', nombre: 'Farmacología General', req: ['bioqinm'] },
+          { id: 'info3', nombre: 'Informática Médica III', req: ['info2'] },
+          { id: 'ingles3', nombre: 'Inglés Médico III', req: ['ingles2'] },
+          { id: 'opt5', nombre: 'Asignatura Electiva u Optativa V' },
+          { id: 'opt6', nombre: 'Asignatura Electiva u Optativa VI' },
+        ]
+      },
+      {
+        ciclo: 'QUINTO AÑO - Ciclo Clínico Quirúrgico',
+        items: [
+          { id: 'medint1', nombre: 'Medicina Interna I', req: ['patologia', 'semiologia'] },
+          { id: 'terap1', nombre: 'Terapéutica Clínica I', req: ['farmaco'] },
+          { id: 'nutclin', nombre: 'Nutrición Clínica', req: ['bioqinm'] },
+          { id: 'diagimg', nombre: 'Diagnóstico por Imágenes' },
+          { id: 'sm2', nombre: 'Salud Mental II (Psicosemiología y Psiquiatría)', req: ['sm1'] },
+          { id: 'histmed', nombre: 'Historia de la Medicina' },
+          { id: 'bioetica', nombre: 'Bioética' },
+          { id: 'opt7', nombre: 'Asignatura Electiva u Optativa VII' },
+          { id: 'opt8', nombre: 'Asignatura Electiva u Optativa VIII' },
+        ]
+      },
+      {
+        ciclo: 'SEXTO AÑO - Ciclo Clínico Quirúrgico',
+        items: [
+          { id: 'medint2', nombre: 'Medicina Interna II y Terapéutica Clínica II', req: ['medint1', 'terap1'] },
+          { id: 'neuro', nombre: 'Neurología' },
+          { id: 'infecto', nombre: 'Infectología del Adulto' },
+          { id: 'epidemio', nombre: 'Epidemiología' },
+          { id: 'derma', nombre: 'Dermatología' },
+          { id: 'cirugia', nombre: 'Cirugía' },
+          { id: 'oftalmo', nombre: 'Oftalmología' },
+          { id: 'uro', nombre: 'Urología' },
+          { id: 'otorrino', nombre: 'Otorrinolaringología' },
+          { id: 'trauma', nombre: 'Ortopedia y Traumatología' },
+          { id: 'emerge', nombre: 'Emergentología' },
+          { id: 'obst', nombre: 'Obstetricia' },
+          { id: 'gine', nombre: 'Ginecología' },
+          { id: 'pedi', nombre: 'Medicina Infanto-Juvenil (Pediatría)' },
+          { id: 'legal', nombre: 'Medicina Legal' },
+          { id: 'toxico', nombre: 'Toxicología' },
+          { id: 'opt9', nombre: 'Asignatura Electiva u Optativa IX' },
+          { id: 'opt10', nombre: 'Asignatura Electiva u Optativa X' },
+        ]
+      },
+      {
+        ciclo: 'SÉPTIMO AÑO – INTERNADO ROTATORIO',
+        items: [
+          { id: 'intmed', nombre: 'Clínica Médica y Emergentología' },
+          { id: 'intcir', nombre: 'Cirugía (y Urgencias Quirúrgicas)' },
+          { id: 'intgine', nombre: 'Tocoginecología' },
+          { id: 'intpedi', nombre: 'Medicina Infanto-juvenil' },
+          { id: 'intaps', nombre: 'Atención Primaria. Pasantía Rural-Comunitaria' },
+        ]
+      }
+    ];
+
+    const aprobadas = new Set(JSON.parse(localStorage.getItem('materias_aprobadas') || '[]'));
+
+    function renderMalla() {
+      const container = document.getElementById('malla');
+      container.innerHTML = '';
+
+      materias.forEach(bloque => {
+        const title = document.createElement('h2');
+        title.textContent = bloque.ciclo;
+        container.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+
+        bloque.items.forEach(mat => {
+          const div = document.createElement('div');
+          div.className = 'materia';
+          div.textContent = mat.nombre;
+
+          const reqs = mat.req || [];
+          const falta = reqs.filter(r => !aprobadas.has(r));
+
+          if (falta.length) {
+            div.classList.add('bloqueada');
+            div.setAttribute('data-tooltip', 'Requiere:\n' + falta.map(id => {
+              const m = materias.flatMap(b => b.items).find(m => m.id === id);
+              return m ? m.nombre : id;
+            }).join('\n'));
+          } else {
+            div.addEventListener('click', () => {
+              if (div.classList.contains('aprobada')) {
+                div.classList.remove('aprobada');
+                aprobadas.delete(mat.id);
+              } else {
+                div.classList.add('aprobada');
+                aprobadas.add(mat.id);
+              }
+              localStorage.setItem('materias_aprobadas', JSON.stringify([...aprobadas]));
+              renderMalla();
+            });
+          }
+
+          if (aprobadas.has(mat.id)) {
+            div.classList.add('aprobada');
+          }
+
+          grid.appendChild(div);
+        });
+
+        container.appendChild(grid);
+        container.appendChild(document.createElement('hr'));
+      });
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
